@@ -15,9 +15,12 @@ interface ReportDashboardProps {
   report: SeoReport;
   onDownloadPdf: () => void;
   isPdfMode: boolean;
+  isReportLocked: boolean;
 }
 
-export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDownloadPdf, isPdfMode }) => {
+export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDownloadPdf, isPdfMode, isReportLocked }) => {
+  const isLocked = isReportLocked && !isPdfMode;
+
   return (
     <div className="mt-8 animate-fade-in space-y-8">
       <div className="flex justify-between items-center p-4 bg-slate-800 rounded-lg border border-slate-700">
@@ -44,26 +47,26 @@ export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDown
       </div>
       
       {/* Technical Audit Section */}
-      <TechnicalAuditReport audit={report.technicalAudit} />
+      <TechnicalAuditReport audit={report.technicalAudit} isLocked={isLocked} />
 
       {/* Keyword Deep Dive & Competitor Analysis */}
-      <KeywordDeepDive keywords={report.keywords} competitorInfo={report.competitorAnalysis} />
+      <KeywordDeepDive keywords={report.keywords} competitorInfo={report.competitorAnalysis} isLocked={isLocked} />
 
       {/* Keyword Performance Charts */}
-      <KeywordRankingChart keywords={report.keywords} />
+      <KeywordRankingChart keywords={report.keywords} isLocked={isLocked} />
       
       {/* Content & Keyword Opportunities */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <ContentSuggestions suggestions={report.contentSuggestions} />
-        <KeywordGaps gaps={report.keywordGaps} />
-        <KeywordSuggestions suggestions={report.keywordSuggestions} />
+        <ContentSuggestions suggestions={report.contentSuggestions} isLocked={isLocked} />
+        <KeywordGaps gaps={report.keywordGaps} isLocked={isLocked} />
+        <KeywordSuggestions suggestions={report.keywordSuggestions} isLocked={isLocked} />
       </div>
 
       {/* Advanced Suggestions */}
-      <AdvancedSuggestions suggestions={report.advancedSuggestions} />
+      <AdvancedSuggestions suggestions={report.advancedSuggestions} isLocked={isLocked} />
 
       {/* Recommendations */}
-      <Recommendations recommendations={report.recommendations} />
+      <Recommendations recommendations={report.recommendations} isLocked={isLocked} />
     </div>
   );
 };

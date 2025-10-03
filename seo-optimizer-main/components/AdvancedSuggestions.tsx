@@ -4,6 +4,7 @@ import { WrenchScrewdriverIcon, LightbulbIcon, UserGroupIcon, MapPinIcon } from 
 
 interface AdvancedSuggestionsProps {
   suggestions: AdvancedSuggestion[];
+  isLocked: boolean;
 }
 
 const categoryIconMap: { [key in AdvancedSuggestion['category']]: React.FC<React.SVGProps<SVGSVGElement>> } = {
@@ -20,7 +21,7 @@ const categoryColorMap = {
     'Local SEO': 'text-rose-400',
 };
 
-export const AdvancedSuggestions: React.FC<AdvancedSuggestionsProps> = ({ suggestions }) => {
+export const AdvancedSuggestions: React.FC<AdvancedSuggestionsProps> = ({ suggestions, isLocked }) => {
   if (!suggestions || suggestions.length === 0) {
     return null;
   }
@@ -30,10 +31,15 @@ export const AdvancedSuggestions: React.FC<AdvancedSuggestionsProps> = ({ sugges
       <h3 className="text-xl font-bold text-white mb-4">Advanced Strategic Suggestions</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {suggestions.map((suggestion, index) => {
+          const isBlurred = isLocked && index > 0;
           const IconComponent = categoryIconMap[suggestion.category];
           const colorClass = categoryColorMap[suggestion.category];
           return (
-            <div key={index} className="bg-slate-700/50 p-4 rounded-lg border border-slate-600 flex items-start gap-4">
+            <div 
+              key={index} 
+              className={`bg-slate-700/50 p-4 rounded-lg border border-slate-600 flex items-start gap-4 transition-all duration-300 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}
+              aria-hidden={isBlurred}
+            >
               <div className={`flex-shrink-0 w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center ${colorClass}`}>
                 <IconComponent className="w-6 h-6" />
               </div>

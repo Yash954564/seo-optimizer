@@ -4,6 +4,7 @@ import { FileCodeIcon, SitemapIcon, BrokenLinkIcon, CheckCircleIcon, AnalyticsIc
 
 interface TechnicalAuditReportProps {
   audit: TechnicalAudit;
+  isLocked: boolean;
 }
 
 const StatusIndicator: React.FC<{ isPositive: boolean, positiveText: string, negativeText: string }> = ({ isPositive, positiveText, negativeText }) => (
@@ -38,7 +39,7 @@ const AuditCard: React.FC<{
 );
 
 
-export const TechnicalAuditReport: React.FC<TechnicalAuditReportProps> = ({ audit }) => {
+export const TechnicalAuditReport: React.FC<TechnicalAuditReportProps> = ({ audit, isLocked }) => {
   const { robotsTxt, sitemap, brokenLinks, googleAnalytics, googleSearchConsole } = audit;
 
   return (
@@ -95,12 +96,19 @@ export const TechnicalAuditReport: React.FC<TechnicalAuditReportProps> = ({ audi
                             </tr>
                         </thead>
                         <tbody>
-                            {brokenLinks.brokenLinks.map((link, index) => (
-                                <tr key={index} className="border-b border-slate-600">
-                                    <td className="px-4 py-2 font-mono text-red-400 truncate max-w-xs">{link.url}</td>
-                                    <td className="px-4 py-2 font-mono text-gray-400 truncate max-w-xs">{link.foundOn}</td>
-                                </tr>
-                            ))}
+                            {brokenLinks.brokenLinks.map((link, index) => {
+                                const isBlurred = isLocked && index > 0;
+                                return (
+                                    <tr 
+                                      key={index} 
+                                      className={`border-b border-slate-600 transition-all duration-300 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}
+                                      aria-hidden={isBlurred}
+                                    >
+                                        <td className="px-4 py-2 font-mono text-red-400 truncate max-w-xs">{link.url}</td>
+                                        <td className="px-4 py-2 font-mono text-gray-400 truncate max-w-xs">{link.foundOn}</td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -110,12 +118,19 @@ export const TechnicalAuditReport: React.FC<TechnicalAuditReportProps> = ({ audi
             <div className="mt-4 border-t border-slate-600 pt-3">
                 <h4 className="font-semibold text-gray-300">Recommendations:</h4>
                  <ul className="space-y-2 mt-2">
-                    {brokenLinks.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start gap-2 text-sm text-gray-400">
-                        <CheckCircleIcon className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <span>{rec}</span>
-                      </li>
-                    ))}
+                    {brokenLinks.recommendations.map((rec, index) => {
+                        const isBlurred = isLocked && index > 0;
+                        return (
+                          <li 
+                            key={index} 
+                            className={`flex items-start gap-2 text-sm text-gray-400 transition-all duration-300 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}
+                            aria-hidden={isBlurred}
+                          >
+                            <CheckCircleIcon className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span>{rec}</span>
+                          </li>
+                        );
+                    })}
                   </ul>
             </div>
         </div>

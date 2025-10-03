@@ -8,6 +8,8 @@ import { SeoReport } from './types';
 import { analyzeWebsite } from './services/geminiService';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
+import { UnlockButton } from './components/UnlockButton';
+import { EmailModal } from './components/EmailModal';
 
 
 const App: React.FC = () => {
@@ -15,12 +17,15 @@ const App: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [isReportLocked, setIsReportLocked] = useState<boolean>(true);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
   const reportRef = useRef<HTMLDivElement>(null);
 
   const handleAnalysis = useCallback(async (mainUrl: string) => {
     setIsAnalyzing(true);
     setError(null);
     setReport(null);
+    setIsReportLocked(true); // Reset lock state on new analysis
     try {
       const result = await analyzeWebsite(mainUrl);
       setReport(result);
@@ -56,6 +61,11 @@ const App: React.FC = () => {
     }
   }, [report]);
 
+  const handleUnlockReport = () => {
+    setIsReportLocked(false);
+    setIsEmailModalOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-slate-900 text-gray-200 font-sans">
       <Header />
@@ -71,8 +81,23 @@ const App: React.FC = () => {
         {!isAnalyzing && !report && !error && <WelcomeScreen />}
         {report && (
            <div ref={reportRef} className="bg-slate-900">
-              <ReportDashboard report={report} onDownloadPdf={handleDownloadPdf} isPdfMode={isGeneratingPdf} />
+              <ReportDashboard 
+                report={report} 
+                onDownloadPdf={handleDownloadPdf} 
+                isPdfMode={isGeneratingPdf} 
+                isReportLocked={isReportLocked}
+              />
            </div>
+        )}
+         {report && isReportLocked && !isGeneratingPdf && (
+            <UnlockButton onClick={() => setIsEmailModalOpen(true)} />
+        )}
+        {isEmailModalOpen && report && (
+            <EmailModal 
+                onClose={() => setIsEmailModalOpen(false)} 
+                onSubmit={handleUnlockReport}
+                url={report.url}
+            />
         )}
       </main>
     </div>

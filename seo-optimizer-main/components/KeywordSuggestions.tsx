@@ -4,6 +4,7 @@ import { TagIcon } from './icons';
 
 interface KeywordSuggestionsProps {
   suggestions: KeywordSuggestion[];
+  isLocked: boolean;
 }
 
 const typeColorMap: { [key in KeywordSuggestion['type']]: string } = {
@@ -14,7 +15,7 @@ const typeColorMap: { [key in KeywordSuggestion['type']]: string } = {
     'Local': 'bg-amber-500/20 text-amber-300',
 };
 
-export const KeywordSuggestions: React.FC<KeywordSuggestionsProps> = ({ suggestions }) => {
+export const KeywordSuggestions: React.FC<KeywordSuggestionsProps> = ({ suggestions, isLocked }) => {
   if (!suggestions || suggestions.length === 0) {
     return null;
   }
@@ -26,28 +27,35 @@ export const KeywordSuggestions: React.FC<KeywordSuggestionsProps> = ({ suggesti
         <h3 className="text-xl font-bold text-white">Strategic Keyword Suggestions</h3>
       </div>
       <div className="space-y-6">
-        {suggestions.map((suggestion, index) => (
-          <div key={index} className="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
-            <div className="flex items-center justify-between">
-                <h4 className="font-semibold text-lg text-white">{suggestion.keyword}</h4>
-                <span className={`text-xs font-bold px-2 py-1 rounded-full ${typeColorMap[suggestion.type] || 'bg-gray-500/20 text-gray-300'}`}>
-                    {suggestion.type}
-                </span>
-            </div>
-            <p className="text-sm text-gray-400 mt-2 italic">"{suggestion.relevance}"</p>
+        {suggestions.map((suggestion, index) => {
+          const isBlurred = isLocked && index > 0;
+          return (
+            <div 
+              key={index} 
+              className={`bg-slate-700/50 p-4 rounded-lg border border-slate-600 transition-all duration-300 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}
+              aria-hidden={isBlurred}
+            >
+              <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-lg text-white">{suggestion.keyword}</h4>
+                  <span className={`text-xs font-bold px-2 py-1 rounded-full ${typeColorMap[suggestion.type] || 'bg-gray-500/20 text-gray-300'}`}>
+                      {suggestion.type}
+                  </span>
+              </div>
+              <p className="text-sm text-gray-400 mt-2 italic">"{suggestion.relevance}"</p>
 
-            <div className="mt-3 border-t border-slate-600 pt-3">
-                <h5 className="text-sm font-semibold text-gray-300">Optimization Tips:</h5>
-                <p className="text-sm text-gray-400 mt-1">{suggestion.optimizationTips}</p>
+              <div className="mt-3 border-t border-slate-600 pt-3">
+                  <h5 className="text-sm font-semibold text-gray-300">Optimization Tips:</h5>
+                  <p className="text-sm text-gray-400 mt-1">{suggestion.optimizationTips}</p>
+              </div>
+               <div className="mt-3">
+                  <h5 className="text-sm font-semibold text-gray-300">Implementation Example:</h5>
+                  <p className="text-sm text-gray-400 bg-slate-800 p-2 rounded-md mt-1 font-mono">
+                      {suggestion.implementationExample}
+                  </p>
+              </div>
             </div>
-             <div className="mt-3">
-                <h5 className="text-sm font-semibold text-gray-300">Implementation Example:</h5>
-                <p className="text-sm text-gray-400 bg-slate-800 p-2 rounded-md mt-1 font-mono">
-                    {suggestion.implementationExample}
-                </p>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

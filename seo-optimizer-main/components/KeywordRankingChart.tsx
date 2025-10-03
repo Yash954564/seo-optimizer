@@ -5,6 +5,7 @@ import { ChartBarIcon } from './icons';
 
 interface KeywordRankingChartProps {
   keywords: KeywordData[];
+  isLocked: boolean;
 }
 
 // A simple color palette for charts
@@ -66,7 +67,7 @@ const RankingSparkline: React.FC<{ history: number[]; color: string }> = ({ hist
   );
 };
 
-export const KeywordRankingChart: React.FC<KeywordRankingChartProps> = ({ keywords }) => {
+export const KeywordRankingChart: React.FC<KeywordRankingChartProps> = ({ keywords, isLocked }) => {
   if (!keywords || keywords.length === 0) {
     return null;
   }
@@ -79,14 +80,21 @@ export const KeywordRankingChart: React.FC<KeywordRankingChartProps> = ({ keywor
         <span className="text-sm text-gray-400">(Last 6 Weeks)</span>
       </div>
       <div className="space-y-4">
-        {keywords.map((keyword, index) => (
-          <div key={keyword.keyword} className="bg-slate-700/50 p-4 rounded-lg border border-slate-600 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-            <h4 className="font-semibold text-lg text-white">
-              {keyword.keyword}
-            </h4>
-            <RankingSparkline history={keyword.rankingHistory} color={colors[index % colors.length]} />
-          </div>
-        ))}
+        {keywords.map((keyword, index) => {
+          const isBlurred = isLocked && index > 0;
+          return (
+             <div 
+              key={keyword.keyword} 
+              className={`bg-slate-700/50 p-4 rounded-lg border border-slate-600 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-all duration-300 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}
+              aria-hidden={isBlurred}
+            >
+              <h4 className="font-semibold text-lg text-white">
+                {keyword.keyword}
+              </h4>
+              <RankingSparkline history={keyword.rankingHistory} color={colors[index % colors.length]} />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
