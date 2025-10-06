@@ -8,8 +8,8 @@ import { SeoReport } from './types';
 import { analyzeWebsite } from './services/geminiService';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
-import { UnlockButton } from './components/UnlockButton';
 import { EmailModal } from './components/EmailModal';
+import { UnlockButton } from './components/UnlockButton';
 
 
 const App: React.FC = () => {
@@ -17,15 +17,20 @@ const App: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [isGeneratingPdf, setIsGeneratingPdf] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [isReportLocked, setIsReportLocked] = useState<boolean>(true);
-  const [isEmailModalOpen, setIsEmailModalOpen] = useState<boolean>(false);
+  const [isReportLocked, setIsReportLocked] = useState(true);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [analyzedUrl, setAnalyzedUrl] = useState<string>('');
+
   const reportRef = useRef<HTMLDivElement>(null);
 
   const handleAnalysis = useCallback(async (mainUrl: string) => {
     setIsAnalyzing(true);
     setError(null);
     setReport(null);
-    setIsReportLocked(true); // Reset lock state on new analysis
+    setIsReportLocked(true);
+    setShowEmailModal(false);
+    setAnalyzedUrl(mainUrl);
+
     try {
       const result = await analyzeWebsite(mainUrl);
       setReport(result);
@@ -41,7 +46,7 @@ const App: React.FC = () => {
     if (reportRef.current) {
       setIsGeneratingPdf(true);
       html2canvas(reportRef.current, {
-        backgroundColor: '#0f172a', // Corresponds to bg-slate-900
+        backgroundColor: '#F8F9FA', // Corresponds to light theme bg
         scale: 2,
         useCORS: true,
       }).then((canvas) => {
@@ -60,46 +65,51 @@ const App: React.FC = () => {
       });
     }
   }, [report]);
-
-  const handleUnlockReport = () => {
+  
+  const handleUnlockSuccess = () => {
     setIsReportLocked(false);
-    setIsEmailModalOpen(false);
+    setShowEmailModal(false);
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-gray-200 font-sans">
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        <UrlInputForm onAnalyze={handleAnalysis} isLoading={isAnalyzing} />
-        {isAnalyzing && <LoadingSpinner message="AI is analyzing your website..." />}
-        {error && (
-          <div className="mt-8 text-center bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg animate-fade-in" role="alert">
-            <p className="font-bold">An Error Occurred</p>
-            <p className="text-sm">{error}</p>
-          </div>
-        )}
-        {!isAnalyzing && !report && !error && <WelcomeScreen />}
-        {report && (
-           <div ref={reportRef} className="bg-slate-900">
-              <ReportDashboard 
-                report={report} 
-                onDownloadPdf={handleDownloadPdf} 
-                isPdfMode={isGeneratingPdf} 
-                isReportLocked={isReportLocked}
+    <div className="min-h-screen text-text-primary font-sans" 
+    style={{
+    position: 'relative',
+    background: 'url(https://www.smartdatainc.com/wp-content/themes/smartdata-new/assets/img/banner_home_bg.svg) no-repeat center',
+    backgroundSize: 'cover'
+  }}>
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <UrlInputForm onAnalyze={handleAnalysis} isLoading={isAnalyzing} />
+          {isAnalyzing && <LoadingSpinner message="AI is analyzing your website..." />}
+          {error && (
+            <div className="mt-8 text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg animate-fade-in" role="alert">
+              <p className="font-bold">An Error Occurred</p>
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
+          {!isAnalyzing && !report && !error && <WelcomeScreen />}
+          {report && (
+            <div ref={reportRef} className="bg-transparent">
+                <ReportDashboard 
+                  report={report} 
+                  onDownloadPdf={handleDownloadPdf} 
+                  isPdfMode={isGeneratingPdf} 
+                  isReportLocked={isReportLocked}
+                />
+            </div>
+          )}
+          {report && isReportLocked && !isGeneratingPdf && (
+              <UnlockButton onClick={() => setShowEmailModal(true)} />
+          )}
+          {showEmailModal && (
+              <EmailModal 
+                  onClose={() => setShowEmailModal(false)}
+                  onSubmit={handleUnlockSuccess}
+                  url={analyzedUrl}
               />
-           </div>
-        )}
-         {report && isReportLocked && !isGeneratingPdf && (
-            <UnlockButton onClick={() => setIsEmailModalOpen(true)} />
-        )}
-        {isEmailModalOpen && report && (
-            <EmailModal 
-                onClose={() => setIsEmailModalOpen(false)} 
-                onSubmit={handleUnlockReport}
-                url={report.url}
-            />
-        )}
-      </main>
+          )}
+        </main>
     </div>
   );
 };

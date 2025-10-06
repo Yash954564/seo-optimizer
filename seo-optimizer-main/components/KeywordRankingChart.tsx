@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { KeywordData } from '../types';
 import { ChartBarIcon } from './icons';
 
 interface KeywordRankingChartProps {
   keywords: KeywordData[];
-  isLocked: boolean;
+  isReportLocked: boolean;
 }
 
 // A simple color palette for charts
@@ -22,7 +21,7 @@ const colors = [
 // A small component to render a sparkline for ranking history
 const RankingSparkline: React.FC<{ history: number[]; color: string }> = ({ history, color }) => {
   if (!history || history.length < 2) {
-    return <div className="text-sm text-gray-400 text-center flex-1">Not enough data for chart.</div>;
+    return <div className="text-sm text-text-secondary text-center flex-1">Not enough data for chart.</div>;
   }
 
   const width = 150;
@@ -60,35 +59,33 @@ const RankingSparkline: React.FC<{ history: number[]; color: string }> = ({ hist
         />
       </svg>
       <div className="text-right">
-        <p className="text-xs text-gray-400">Current / Best</p>
-        <p className="font-bold text-lg text-white">#{currentRank} / <span className="text-green-400">#{bestRank}</span></p>
+        <p className="text-xs text-text-secondary">Current / Best</p>
+        <p className="font-bold text-lg text-text-primary">#{currentRank} / <span className="text-green-500">#{bestRank}</span></p>
       </div>
     </div>
   );
 };
 
-export const KeywordRankingChart: React.FC<KeywordRankingChartProps> = ({ keywords, isLocked }) => {
+export const KeywordRankingChart: React.FC<KeywordRankingChartProps> = ({ keywords, isReportLocked }) => {
   if (!keywords || keywords.length === 0) {
     return null;
   }
 
   return (
-    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 animate-slide-in-up shadow-lg">
+    <div className="bg-white p-6 rounded-xl border border-slate-200 animate-slide-in-up shadow-lg">
       <div className="flex items-center gap-3 mb-4">
         <ChartBarIcon className="w-6 h-6 text-brand-primary" />
-        <h3 className="text-xl font-bold text-white">Keyword Ranking History</h3>
-        <span className="text-sm text-gray-400">(Last 6 Weeks)</span>
+        <h3 className="text-xl font-bold text-text-primary">Keyword <span className="text-brand-primary">Ranking History</span></h3>
+        <span className="text-sm text-text-secondary">(Last 6 Weeks)</span>
       </div>
       <div className="space-y-4">
         {keywords.map((keyword, index) => {
-          const isBlurred = isLocked && index > 0;
           return (
              <div 
               key={keyword.keyword} 
-              className={`bg-slate-700/50 p-4 rounded-lg border border-slate-600 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-all duration-300 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}
-              aria-hidden={isBlurred}
+              className={`bg-slate-50 p-4 rounded-lg border border-slate-200 flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-all duration-300 ${isReportLocked && index > 0 ? 'blur-lg grayscale opacity-60 pointer-events-none select-none' : ''}`}
             >
-              <h4 className="font-semibold text-lg text-white">
+              <h4 className="font-semibold text-lg text-text-primary">
                 {keyword.keyword}
               </h4>
               <RankingSparkline history={keyword.rankingHistory} color={colors[index % colors.length]} />

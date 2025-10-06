@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { KeywordData, CompetitorAnalysis as CompetitorAnalysisType } from '../types';
 import { LinkIcon, ChevronDownIcon } from './icons';
@@ -6,7 +5,7 @@ import { LinkIcon, ChevronDownIcon } from './icons';
 interface KeywordDeepDiveProps {
   keywords: KeywordData[];
   competitorInfo: CompetitorAnalysisType[];
-  isLocked: boolean;
+  isReportLocked: boolean;
 }
 
 const CompetitorDetails: React.FC<{ competitor: CompetitorAnalysisType }> = ({ competitor }) => {
@@ -19,17 +18,17 @@ const CompetitorDetails: React.FC<{ competitor: CompetitorAnalysisType }> = ({ c
                 <ChevronDownIcon className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
             </button>
             {isOpen && (
-                <div className="mt-2 space-y-2 text-sm text-gray-400 border-l-2 border-slate-500 pl-3">
+                <div className="mt-2 space-y-2 text-sm text-text-secondary border-l-2 border-slate-300 pl-3">
                     <div>
-                        <h5 className="font-semibold text-gray-300">Content Strategy:</h5>
+                        <h5 className="font-semibold text-text-primary">Content Strategy:</h5>
                         <p>{competitor.detailedStrategy.content}</p>
                     </div>
                     <div>
-                        <h5 className="font-semibold text-gray-300">Link Building:</h5>
+                        <h5 className="font-semibold text-text-primary">Link Building:</h5>
                         <p>{competitor.detailedStrategy.linkBuilding}</p>
                     </div>
                     <div>
-                        <h5 className="font-semibold text-gray-300">On-Page & Technical SEO:</h5>
+                        <h5 className="font-semibold text-text-primary">On-Page & Technical SEO:</h5>
                         <p>{competitor.detailedStrategy.onPageAndTechnical}</p>
                     </div>
                 </div>
@@ -38,37 +37,36 @@ const CompetitorDetails: React.FC<{ competitor: CompetitorAnalysisType }> = ({ c
     )
 }
 
-export const KeywordDeepDive: React.FC<KeywordDeepDiveProps> = ({ keywords, competitorInfo, isLocked }) => {
-  // FIX: Explicitly type the Map to prevent TypeScript from inferring `details` as `unknown`.
+export const KeywordDeepDive: React.FC<KeywordDeepDiveProps> = ({ keywords, competitorInfo, isReportLocked }) => {
   const competitorInfoMap = new Map<string, CompetitorAnalysisType>(competitorInfo.map(c => [c.url, c]));
 
   return (
-    <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 animate-slide-in-up shadow-lg">
-      <h2 className="text-xl font-bold text-white mb-4">Keyword & Competitor Deep Dive</h2>
+    <div className="animate-slide-in-up">
+      <h2 className="text-3xl font-bold text-text-primary text-center mb-6">
+        <span className="text-brand-primary">Keyword</span> & Competitor Deep Dive
+      </h2>
       <div className="space-y-6">
         {keywords.map((keyword, index) => {
-          const isBlurred = isLocked && index > 0;
           return (
             <div 
               key={keyword.keyword} 
-              className={`bg-slate-700/50 p-4 rounded-lg border border-slate-600 transition-all duration-300 ${isBlurred ? 'blur-sm pointer-events-none select-none' : ''}`}
-              aria-hidden={isBlurred}
+              className={`bg-white p-4 rounded-lg border border-slate-200 transition-all duration-300 shadow-md ${isReportLocked && index > 0 ? 'blur-lg grayscale opacity-60 pointer-events-none select-none' : ''}`}
             >
-              <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 border-b border-slate-600 pb-3">
-                <h3 className="text-lg font-semibold text-white">
-                  Keyword: <span className="text-brand-accent">{keyword.keyword}</span>
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-3 border-b border-slate-200 pb-3">
+                <h3 className="text-lg font-semibold text-text-primary">
+                  Keyword: <span className="text-brand-secondary">{keyword.keyword}</span>
                 </h3>
-                <p className="font-bold text-lg text-gray-200">
-                  Your Rank: <span className="text-brand-primary">#{keyword.rank}</span>
+                <p className="font-bold text-lg text-text-primary">
+                Your Estimated Rank is Approximately: <span className="text-brand-primary">#{keyword.rank}</span>
                 </p>
               </div>
               
-              <h4 className="text-md font-semibold text-gray-300 mb-2">Top Competitors for this Keyword:</h4>
+              <h4 className="text-md font-semibold text-text-primary mb-2">Top Competitors for this Keyword:</h4>
               <div className="space-y-4">
                   {keyword.topCompetitors.length > 0 ? keyword.topCompetitors.map(comp => {
                       const details = competitorInfoMap.get(comp.url);
                       return (
-                          <div key={comp.url} className="pl-4 border-l-2 border-slate-600">
+                          <div key={comp.url} className="pl-4 border-l-2 border-slate-300">
                               <div className="flex items-center gap-2">
                                   <span className="font-bold text-brand-secondary text-md">#{comp.rank}</span>
                                   <LinkIcon className="w-4 h-4 text-gray-400" />
@@ -78,13 +76,13 @@ export const KeywordDeepDive: React.FC<KeywordDeepDiveProps> = ({ keywords, comp
                               </div>
                               {details && (
                                   <>
-                                      <p className="text-gray-400 text-sm mt-1 ml-1">{details.strategySummary}</p>
+                                      <p className="text-text-secondary text-sm mt-1 ml-1">{details.strategySummary}</p>
                                       <CompetitorDetails competitor={details} />
                                   </>
                               )}
                           </div>
                       )
-                  }) : <p className="text-sm text-gray-400">No direct competitors found for this keyword.</p>}
+                  }) : <p className="text-sm text-text-secondary">No direct competitors found for this keyword.</p>}
               </div>
             </div>
           );

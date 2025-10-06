@@ -1,22 +1,5 @@
 import React from 'react';
 
-export const SmartDataLogo: React.FC<React.HTMLAttributes<HTMLDivElement>> = (props) => (
-  <div {...props}>
-    <div 
-      className="text-3xl font-black text-brand-primary"
-      style={{ fontFamily: `'Segoe UI', 'Arial Black', 'Arial', sans-serif`, fontStyle: 'italic', letterSpacing: '-0.075em', lineHeight: '1' }}
-    >
-      SmartData
-    </div>
-    <div
-      className="text-base font-bold text-brand-primary tracking-widest mt-1 pt-1"
-      style={{ fontFamily: `'Segoe UI', 'Arial', sans-serif`, borderTop: '2px solid #EF4444' }}
-    >
-      ENTERPRISES
-    </div>
-  </div>
-);
-
 export const AnalyticsIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0 0 20.25 18V5.75A2.25 2.25 0 0 0 18 3.5H6A2.25 2.25 0 0 0 3.75 5.75v12.5A2.25 2.25 0 0 0 6 20.25Z" />

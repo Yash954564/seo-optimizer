@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { EmailModal } from './EmailModal';
+import { CheckCircleIcon } from './icons';
 
 const features = [
   'Broken Links & 404 Errors',
@@ -13,7 +13,11 @@ const features = [
   'Actionable Recommendations',
 ];
 
-const FeatureUnlock: React.FC = () => {
+interface FeatureUnlockProps {
+  url: string;
+}
+
+const FeatureUnlock: React.FC<FeatureUnlockProps> = ({ url }) => {
   const [unlocked, setUnlocked] = useState(false);
   const [showModal, setShowModal] = useState(false);
 
@@ -23,12 +27,13 @@ const FeatureUnlock: React.FC = () => {
   };
 
   return (
-    <div className="relative bg-slate-800 p-6 rounded-xl shadow-lg border border-slate-700 animate-slide-in-up">
-      <h2 className="text-2xl font-bold mb-4 text-white">Full Feature List</h2>
+    <div className="relative bg-white p-6 rounded-xl shadow-lg border border-slate-200 animate-slide-in-up">
+      <h2 className="text-2xl font-bold mb-4 text-text-primary">Full Feature List</h2>
       <ul className="space-y-2">
         {features.map((feature, index) => (
-          <li key={index} className={`text-gray-300 ${index > 0 && !unlocked ? 'blur-sm' : ''}`}>
-            <span className="text-brand-primary mr-2">✓</span>{feature}
+          <li key={index} className={`flex items-center gap-2 text-text-secondary transition-all duration-300 ${index > 0 && !unlocked ? 'blur-md saturate-0 opacity-50' : ''}`}>
+            <CheckCircleIcon className="w-5 h-5 text-green-500" />
+            <span>{feature}</span>
           </li>
         ))}
       </ul>
@@ -36,7 +41,7 @@ const FeatureUnlock: React.FC = () => {
         <div className="absolute top-4 right-4">
           <button
             onClick={() => setShowModal(true)}
-            className="bg-brand-primary hover:bg-brand-secondary text-slate-900 font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-105"
+            className="bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-4 rounded-full transition-transform transform hover:scale-105"
           >
             Unlock All Points
           </button>
@@ -45,7 +50,8 @@ const FeatureUnlock: React.FC = () => {
       {showModal && (
         <EmailModal 
           onClose={() => setShowModal(false)} 
-          onSuccess={handleSuccess} 
+          onSubmit={handleSuccess} 
+          url={url}
         />
       )}
     </div>

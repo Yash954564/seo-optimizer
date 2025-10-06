@@ -22,7 +22,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ onClose, onSubmit, url }
         e.preventDefault();
         setError(null);
         
-        if (!email || !email.includes('@')) {
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             setError('Please enter a valid email address.');
             return;
         }
@@ -36,7 +36,16 @@ export const EmailModal: React.FC<EmailModalProps> = ({ onClose, onSubmit, url }
                 .eq('url', url);
 
             if (updateError) {
-                throw updateError;
+                // If the URL to update is not found, we can try to insert it as a fallback.
+                // This handles edge cases where the initial insert might have failed silently.
+                 if (updateError.code === 'PGRST116') { // "Invalid 'eq' filter" might mean 0 rows updated
+                     const { error: insertError } = await supabase
+                        .from('urls')
+                        .insert([{ url: url, email: email }]);
+                     if (insertError) throw insertError; // If fallback insert fails, throw error
+                 } else {
+                    throw updateError;
+                 }
             }
 
             console.log('Email successfully saved to Supabase for url:', url);
@@ -51,41 +60,41 @@ export const EmailModal: React.FC<EmailModalProps> = ({ onClose, onSubmit, url }
 
     return (
         <div 
-            className="fixed inset-0 z-30 flex items-center justify-center bg-black/70 animate-fade-in"
+            className="fixed inset-0 z-30 flex items-center justify-center bg-black/50 animate-fade-in"
             onClick={onClose}
             role="dialog"
             aria-modal="true"
             aria-labelledby="email-modal-title"
         >
             <div 
-                className="bg-slate-800 p-8 rounded-xl shadow-lg border border-slate-700 w-full max-w-md mx-4 animate-slide-in-up"
+                className="bg-white p-8 rounded-xl shadow-2xl border border-slate-200 w-full max-w-md mx-4 animate-slide-in-up"
                 onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
             >
-                <h2 id="email-modal-title" className="text-2xl font-bold text-white mb-2 text-center">Unlock Full Report</h2>
-                <p className="text-gray-400 text-center mb-6">Enter your email to unlock all SEO insights and recommendations.</p>
+                <h2 id="email-modal-title" className="text-2xl font-bold text-text-primary mb-2 text-center">Unlock Full Report</h2>
+                <p className="text-text-secondary text-center mb-6">Enter your email to unlock all SEO insights and recommendations.</p>
                 <form onSubmit={handleSubmit}>
                     <div className="relative">
-                        <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                        <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="your@email.com"
-                            className="w-full bg-slate-700 border border-slate-600 rounded-md py-3 pl-10 pr-4 text-white focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition"
+                            className="w-full bg-slate-50 border border-slate-300 rounded-md py-3 pl-10 pr-4 text-text-primary focus:ring-2 focus:ring-brand-primary focus:border-brand-primary transition placeholder:text-gray-400"
                             required
                             aria-label="Email address"
                         />
                     </div>
-                    {error && <p className="text-red-400 text-sm mt-2 text-center">{error}</p>}
+                    {error && <p className="text-red-600 text-sm mt-2 text-center">{error}</p>}
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full mt-6 bg-brand-primary hover:bg-brand-secondary text-slate-900 font-bold py-3 px-4 rounded-md transition-all duration-300 disabled:bg-slate-600 disabled:cursor-not-allowed"
+                        className="w-full mt-6 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-3 px-4 rounded-md transition-all duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed transform hover:scale-105"
                     >
                         {isSubmitting ? 'Submitting...' : 'Unlock Now'}
                     </button>
                 </form>
-                 <button onClick={onClose} disabled={isSubmitting} className="w-full mt-2 text-sm text-slate-400 hover:text-white transition-colors disabled:opacity-50">
+                 <button onClick={onClose} disabled={isSubmitting} className="w-full mt-2 text-sm text-gray-500 hover:text-gray-800 transition-colors disabled:opacity-50">
                     Cancel
                 </button>
             </div>
