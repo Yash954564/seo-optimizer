@@ -1,11 +1,7 @@
 import React, { useState, FormEvent } from 'react';
 import { MailIcon } from './icons';
-import { createClient } from '@supabase/supabase-js';
+import { saveEmailForUrl } from '../services/supabaseService';
 
-// Supabase config
-const supabaseUrl = 'https://pieyplqyszyarodkfibp.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXlwbHF5c3p5YXJvZGtmaWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMzU2OTcsImV4cCI6MjA3NDgxMTY5N30.hiMEOit-lCLgOlhhkzyWiP3WrhXnPM1QI_WWoZDcqPE';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 interface EmailModalProps {
     onClose: () => void;
@@ -29,25 +25,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({ onClose, onSubmit, url }
 
         setIsSubmitting(true);
         try {
-            // Update the record in Supabase where the URL matches
-            const { error: updateError } = await supabase
-                .from('urls')
-                .update({ email: email })
-                .eq('url', url);
-
-            if (updateError) {
-                // If the URL to update is not found, we can try to insert it as a fallback.
-                // This handles edge cases where the initial insert might have failed silently.
-                 if (updateError.code === 'PGRST116') { // "Invalid 'eq' filter" might mean 0 rows updated
-                     const { error: insertError } = await supabase
-                        .from('urls')
-                        .insert([{ url: url, email: email }]);
-                     if (insertError) throw insertError; // If fallback insert fails, throw error
-                 } else {
-                    throw updateError;
-                 }
-            }
-
+            await saveEmailForUrl(url, email);
             console.log('Email successfully saved to Supabase for url:', url);
             onSubmit(); // This will unlock the report and close the modal
         } catch (err: any) {

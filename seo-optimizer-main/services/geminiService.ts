@@ -31,16 +31,16 @@ const seoReportSchema = {
                 backlinks: {
                     type: Type.OBJECT,
                     properties: {
-                        score: { type: Type.INTEGER, description: "Backlinks profile score from 0-100." },
+                        score: { type: Type.INTEGER, description: "Backlinks profile score from 0-100, based on inferred authority and industry relevance." },
                         breakdown: { type: Type.ARRAY, items: { type: Type.STRING }, description: "List of positive factors for the backlinks score." },
                         topBacklinks: {
                             type: Type.ARRAY,
-                            description: "A list of 3-5 simulated high-quality backlinks.",
+                            description: "A list of 3-5 examples of IDEAL, high-quality backlinks the site should aim to acquire.",
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
-                                    url: { type: Type.STRING, description: "The URL of the linking page." },
-                                    anchorText: { type: Type.STRING, description: "The anchor text of the link." },
+                                    url: { type: Type.STRING, description: "The URL of a relevant, high-authority page that would be an ideal backlink source." },
+                                    anchorText: { type: Type.STRING, description: "Plausible anchor text for such a link." },
                                     domainAuthority: { type: Type.INTEGER, description: "Estimated Domain Authority (0-100) of the linking domain." }
                                 },
                                 required: ["url", "anchorText", "domainAuthority"]
@@ -62,7 +62,7 @@ const seoReportSchema = {
         },
         technicalAudit: {
             type: Type.OBJECT,
-            description: "An audit of the site's technical SEO health.",
+            description: "An audit of the site's technical SEO health based on live inspection.",
             properties: {
                 robotsTxt: {
                     type: Type.OBJECT,
@@ -87,7 +87,7 @@ const seoReportSchema = {
                     properties: {
                         brokenLinks: {
                             type: Type.ARRAY,
-                            description: "A list of identified broken internal links (404 errors).",
+                            description: "A list of identified broken internal links (404 errors) found during the crawl.",
                             items: {
                                 type: Type.OBJECT,
                                 properties: {
@@ -104,7 +104,7 @@ const seoReportSchema = {
                 googleAnalytics: {
                     type: Type.OBJECT,
                     properties: {
-                        isSetup: { type: Type.BOOLEAN, description: "Whether Google Analytics tracking code is detected." },
+                        isSetup: { type: Type.BOOLEAN, description: "Whether a Google Analytics tracking script (gtag.js or analytics.js) is detected in the site's source code." },
                         recommendations: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Recommendations for Google Analytics setup or optimization." }
                     },
                     required: ["isSetup", "recommendations"]
@@ -112,7 +112,7 @@ const seoReportSchema = {
                 googleSearchConsole: {
                     type: Type.OBJECT,
                     properties: {
-                        isSetup: { type: Type.BOOLEAN, description: "An inference on whether Google Search Console is likely set up." },
+                        isSetup: { type: Type.BOOLEAN, description: "An inference on whether Google Search Console is likely set up (cannot be directly detected)." },
                         recommendations: { type: Type.ARRAY, items: { type: Type.STRING }, description: "Recommendations for GSC setup, verification, and usage." }
                     },
                     required: ["isSetup", "recommendations"]
@@ -122,18 +122,16 @@ const seoReportSchema = {
         },
         keywords: {
             type: Type.ARRAY,
-            description: "Analysis of 5-7 top keywords relevant to the website's content.",
+            description: "Analysis of 5-7 top keywords based on the website's content.",
             items: {
                 type: Type.OBJECT,
                 properties: {
                     keyword: { type: Type.STRING },
-                    rank: { type: Type.INTEGER, description: "Current estimated search engine rank for this keyword." },
-                    searchVolume: { type: Type.STRING, enum: ["Low", "Medium", "High"] },
-                    competition: { type: Type.STRING, enum: ["Low", "Medium", "High"] },
-                    rankingHistory: { type: Type.ARRAY, items: { type: Type.INTEGER }, description: "Simulated ranking history over the last 6 weeks (e.g., [12, 10, 11, 9, 8, 8])." },
+                    relevanceScore: { type: Type.INTEGER, description: "A score from 1-10 indicating how well the site's content currently targets this keyword." },
+                    userIntent: { type: Type.STRING, enum: ["Informational", "Commercial", "Transactional", "Navigational"], description: "The likely user intent behind a search for this keyword." },
                     topCompetitors: {
                         type: Type.ARRAY,
-                        description: "Top 2-3 competitors for this keyword.",
+                        description: "Top 2-3 ranking competitors for this keyword, based on public search results.",
                         items: {
                             type: Type.OBJECT,
                             properties: {
@@ -144,7 +142,7 @@ const seoReportSchema = {
                         }
                     }
                 },
-                required: ["keyword", "rank", "searchVolume", "competition", "rankingHistory", "topCompetitors"]
+                required: ["keyword", "relevanceScore", "userIntent", "topCompetitors"]
             }
         },
         competitorAnalysis: {
@@ -226,38 +224,43 @@ const seoReportSchema = {
 };
 
 
-const generatePrompt = (mainUrl: string): string => {
+const generatePrompt = (mainUrl: string, subPages: string[]): string => {
     let prompt = `Analyze the SEO and performance of the website: ${mainUrl}.
     
-    IMPORTANT: First, act as a web crawler. Simulate crawling the entire website starting from ${mainUrl} to discover all its internal pages. Your entire analysis must be based on this simulated full-site crawl, not just the single URL provided.
+    IMPORTANT: First, act as an expert SEO analyst with real-time web access. Browse the provided URL and its connected pages to gather real information. Your entire analysis must be based on the actual content and structure of the live website. DO NOT simulate or invent data that cannot be verified by inspecting the site (e.g., search volume, historical ranks).`;
 
-    Provide a comprehensive SEO report. Base your analysis on established SEO best practices.
-    The output must be a JSON object that strictly follows the provided schema.
+    if (subPages.length > 0) {
+        prompt += `\n\nIn addition to the main URL, pay special attention to the following key sub-pages. Ensure your analysis reflects specific findings from these URLs:\n${subPages.map(p => `- ${p}`).join('\n')}`;
+    }
+
+    prompt += `
+
+    Provide a comprehensive SEO report. The output must be a JSON object that strictly follows the provided schema.
 
     Your analysis must include:
-    1.  **Scores (0-100)**: On-Page SEO, Content Quality, Backlinks Profile, and a Readability score. For each, provide a score and a breakdown of positive factors. For the Backlinks score, also include a 'topBacklinks' array with 3-5 simulated examples of high-quality backlinks, including their URL, anchor text, and estimated Domain Authority.
+    1.  **Scores (0-100)**: On-Page SEO, Content Quality, Backlinks Profile, and a Readability score. For each, provide a score and a breakdown of positive factors. For the Backlinks score, analyze the site's content and industry to identify 3-5 examples of IDEAL, high-quality domains that would be valuable backlink sources. Provide plausible anchor text and their estimated Domain Authority. This is a strategic exercise, not a report of existing links.
     2.  **Technical SEO Audit**:
-        - **Robots.txt Analysis**: Check for its presence and validity. Provide recommendations for any misconfigurations.
-        - **Sitemap.xml Analysis**: Check for its presence, validity, and whether it appears up-to-date. Provide recommendations.
-        - **Broken Links (404s)**: Based on your simulated crawl, identify 3-5 broken internal links. For each, list the broken URL and the page it was found on. Provide recommendations for fixing them.
-        - **Google Analytics Check**: Check for the presence of a Google Analytics tracking code (gtag.js or analytics.js). If not present, recommend setting it up. If present, recommend setting up goals or events.
-        - **Google Search Console Check**: Infer if GSC is likely set up. If not, recommend the verification process and sitemap submission. If it is likely set up, recommend leveraging its performance reports.
-    3.  **Keyword Analysis**: Identify 5-7 primary keywords for the entire site. For each, provide current rank, search volume (Low, Medium, High), competition (Low, Medium, High), a simulated ranking history for the past 6 weeks, and the top 2-3 competitors.
-    4.  **Competitor Deep Dive**: For each unique competitor identified, provide a summary of their strategy and a more detailed breakdown of their content, link building, and on-page/technical SEO.
+        - **Robots.txt Analysis**: Inspect the live site for a robots.txt file. Report on its presence and validity, providing recommendations for any issues found.
+        - **Sitemap.xml Analysis**: Inspect the live site for a sitemap.xml file. Report on its presence, validity, and apparent completeness. Provide recommendations.
+        - **Broken Links (404s)**: Based on your crawl, identify up to 5 broken internal links. For each, list the broken URL and the page it was found on. Provide recommendations.
+        - **Google Analytics Check**: Inspect the site's source code for a Google Analytics tracking script (gtag.js or analytics.js). Report if it is set up.
+        - **Google Search Console Check**: Infer if GSC is likely set up (as this cannot be directly checked). Provide recommendations on its use.
+    3.  **Keyword Analysis**: Based on the site's content, identify 5-7 primary keywords. For each, provide a 'relevanceScore' (1-10) for how well the site's content targets the keyword, and deduce the primary 'userIntent' (Informational, Commercial, Transactional, or Navigational). List the top 2-3 publicly visible competitors for this keyword. DO NOT invent rank, search volume, or ranking history.
+    4.  **Competitor Deep Dive**: For each unique competitor identified, browse their site and provide a summary of their strategy and a more detailed breakdown of their content, link building, and on-page/technical SEO.
     5.  **Actionable Recommendations**: A list of 5-7 high-impact, actionable steps to improve SEO.
-    6.  **Content Briefs**: 2-3 detailed content briefs. Each brief should include a target keyword, a catchy title, a description, a defined target audience, and a list of suggested headings.
-    7.  **Keyword Gaps**: 4-6 keywords that competitors rank for but the main site does not.
-    8.  **Keyword Suggestions**: 3-4 strategic keyword suggestions relevant to the website's industry. For each, specify its type (e.g., 'Long-Tail'), its relevance, actionable optimization tips, and a concrete implementation example.
+    6.  **Content Briefs**: 2-3 detailed content briefs based on content gaps you identified. Each brief should include a target keyword, a catchy title, a description, a defined target audience, and a list of suggested headings.
+    7.  **Keyword Gaps**: 4-6 keywords that competitors seem to target but the main site does not, based on your analysis.
+    8.  **Keyword Suggestions**: 3-4 strategic keyword suggestions relevant to the website's industry. For each, specify its type, its relevance, actionable optimization tips, and a concrete implementation example.
     9.  **Advanced Suggestions**: 4 strategic suggestions, one for each category: 'Technical SEO', 'Content Strategy', 'User Experience', and 'Local SEO'.
 
-    Generate plausible but realistic data for all fields. The analysis should feel like it was generated by a professional SEO tool. Do not include any explanatory text outside of the JSON object.
+    Generate a report based on real, observable data from the website. Do not include any explanatory text outside of the JSON object.
     `;
     return prompt;
 };
 
 
-export const analyzeWebsite = async (mainUrl: string): Promise<SeoReport> => {
-    const prompt = generatePrompt(mainUrl);
+export const analyzeWebsite = async (mainUrl: string, subPages: string[]): Promise<SeoReport> => {
+    const prompt = generatePrompt(mainUrl, subPages);
     
     try {
         const response = await ai.models.generateContent({
@@ -274,6 +277,10 @@ export const analyzeWebsite = async (mainUrl: string): Promise<SeoReport> => {
 
         if (!report.url) {
             report.url = mainUrl;
+        }
+        
+        if (subPages.length > 0) {
+            report.analyzedSubPages = subPages;
         }
 
         return report;

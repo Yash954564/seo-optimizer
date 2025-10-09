@@ -1,14 +1,9 @@
 import React, { useState, useRef, FormEvent } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { SearchIcon } from './icons';
-
-// Supabase config
-const supabaseUrl = 'https://pieyplqyszyarodkfibp.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpZXlwbHF5c3p5YXJvZGtmaWJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkyMzU2OTcsImV4cCI6MjA3NDgxMTY5N30.hiMEOit-lCLgOlhhkzyWiP3WrhXnPM1QI_WWoZDcqPE';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+import { logUrlAnalysis } from '../services/supabaseService';
+import { SearchIcon, PlusIcon, TrashIcon } from './icons';
 
 interface UrlInputFormProps {
-  onAnalyze: (mainUrl: string) => void;
+  onAnalyze: (mainUrl: string, subPages: string[]) => void;
   isLoading: boolean;
 }
 
@@ -17,15 +12,34 @@ export const UrlInputForm: React.FC<UrlInputFormProps> = ({ onAnalyze, isLoading
   const [mainUrl, setMainUrl] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  
+  const [showSubPages, setShowSubPages] = useState(false);
+  const [subPages, setSubPages] = useState<string[]>([]);
 
   const isValidUrl = (url: string) => {
     try {
       const parsedUrl = new URL(url);
-      // Basic check for a hostname with a period
       return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:" && parsedUrl.hostname.includes('.');
     } catch (_) {
       return false;
     }
+  };
+
+  const handleAddSubPage = () => {
+    if (subPages.length < 5) {
+      setSubPages([...subPages, '']);
+    }
+  };
+
+  const handleSubPageChange = (index: number, value: string) => {
+    const newSubPages = [...subPages];
+    newSubPages[index] = value;
+    setSubPages(newSubPages);
+  };
+
+  const handleRemoveSubPage = (index: number) => {
+    const newSubPages = subPages.filter((_, i) => i !== index);
+    setSubPages(newSubPages);
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -36,25 +50,15 @@ export const UrlInputForm: React.FC<UrlInputFormProps> = ({ onAnalyze, isLoading
       return;
     }
     setError(null);
-    onAnalyze(mainUrl);
+    const validSubPages = subPages.map(p => p.trim()).filter(p => p !== '');
+    onAnalyze(mainUrl, validSubPages);
 
     try {
-      const { error: insertError } = await supabase
-        .from('urls')
-        .insert([{ url: mainUrl, email: null }]); // Insert with null email initially
-
-      if (insertError) {
-        // If the URL is already present (unique constraint violation), that's okay.
-        // We just won't insert it again. We can ignore this specific error.
-        if (insertError.code !== '23505') { 
-            throw insertError;
-        }
-      }
+      await logUrlAnalysis(mainUrl);
       setIsSubmitted(true);
       console.log('URL analysis initiated and logged.');
     } catch (err) {
-      console.error('Error with Supabase:', err);
-      // We don't block the user from analyzing, so we won't set a user-facing error here.
+      console.error('Error logging URL:', err);
     }
   };
 
@@ -80,6 +84,40 @@ export const UrlInputForm: React.FC<UrlInputFormProps> = ({ onAnalyze, isLoading
               />
             </div>
             {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+          </div>
+          
+          <div className="border-t border-slate-200 pt-4">
+              <button type="button" onClick={() => setShowSubPages(!showSubPages)} className="text-sm text-brand-secondary hover:underline">
+                  {showSubPages ? 'Hide' : 'Add Sub-pages for focused analysis (Optional)'}
+              </button>
+              {showSubPages && (
+                  <div className="mt-4 space-y-3">
+                      {subPages.map((page, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                              <input
+                                  type="text"
+                                  value={page}
+                                  onChange={(e) => handleSubPageChange(index, e.target.value)}
+                                  placeholder="e.g., /about-us or full URL"
+                                  className="w-full bg-slate-50 border border-slate-300 rounded-md py-2 px-3 text-sm text-text-primary focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition placeholder:text-gray-400"
+                              />
+                              <button type="button" onClick={() => handleRemoveSubPage(index)} className="p-2 text-red-500 hover:bg-red-100 rounded-full">
+                                  <TrashIcon className="w-4 h-4" />
+                              </button>
+                          </div>
+                      ))}
+                      {subPages.length < 5 && (
+                          <button
+                              type="button"
+                              onClick={handleAddSubPage}
+                              className="flex items-center gap-1 text-sm text-green-600 hover:text-green-700"
+                          >
+                              <PlusIcon className="w-4 h-4" />
+                              Add another page
+                          </button>
+                      )}
+                  </div>
+              )}
           </div>
         </div>
 

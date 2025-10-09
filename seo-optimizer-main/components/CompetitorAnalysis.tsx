@@ -56,9 +56,16 @@ export const KeywordDeepDive: React.FC<KeywordDeepDiveProps> = ({ keywords, comp
                 <h3 className="text-lg font-semibold text-text-primary">
                   Keyword: <span className="text-brand-secondary">{keyword.keyword}</span>
                 </h3>
-                <p className="font-bold text-lg text-text-primary">
-                Your Estimated Rank is Approximately: <span className="text-brand-primary">#{keyword.rank}</span>
-                </p>
+                <div className="flex items-center gap-4 text-sm">
+                    <div className="text-center">
+                        <p className="font-bold text-lg text-brand-primary">{keyword.relevanceScore}/10</p>
+                        <p className="text-text-secondary text-xs">Relevance Score</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="font-bold text-lg text-brand-primary">{keyword.userIntent}</p>
+                        <p className="text-text-secondary text-xs">User Intent</p>
+                    </div>
+                </div>
               </div>
               
               <h4 className="text-md font-semibold text-text-primary mb-2">Top Competitors for this Keyword:</h4>

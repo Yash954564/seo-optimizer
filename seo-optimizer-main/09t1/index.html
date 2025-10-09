@@ -11,14 +11,17 @@
         theme: {
           extend: {
             colors: {
-              'brand-primary': '#EF4444', // red-500
-              'brand-secondary': '#F87171', // red-400
-              'brand-accent': '#FCA5A5', // red-300
-              'brand-light': '#FECACA', // red-200
+              'brand-primary': '#B91C1C',
+              'brand-secondary': '#DC2626',
+              'brand-bg': '#F8F9FA', // Light grey background
+              'text-primary': '#1F2937', // Dark grey for primary text
+              'text-secondary': '#6B7280', // Lighter gray for secondary text
             },
             animation: {
-              'fade-in': 'fadeIn 0.5s ease-in-out',
-              'slide-in-up': 'slideInUp 0.5s ease-in-out',
+              'fade-in': 'fadeIn 0.5s ease-in-out forwards',
+              'slide-in-up': 'slideInUp 0.5s ease-in-out forwards',
+              'staggered-slide-in': 'staggeredSlideIn 0.5s ease-in-out forwards',
+              'pulse-subtle': 'pulseSubtle 2s infinite cubic-bezier(0.4, 0, 0.6, 1)',
             },
             keyframes: {
               fadeIn: {
@@ -28,18 +31,40 @@
               slideInUp: {
                 '0%': { transform: 'translateY(20px)', opacity: 0 },
                 '100%': { transform: 'translateY(0)', opacity: 1 },
+              },
+              staggeredSlideIn: {
+                 '0%': { transform: 'translateY(10px)', opacity: 0 },
+                 '100%': { transform: 'translateY(0)', opacity: 1 },
+              },
+               pulseSubtle: {
+                '0%, 100%': { opacity: 1, transform: 'scale(1)' },
+                '50%': { opacity: 0.95, transform: 'scale(1.03)' },
               }
+            },
+            boxShadow: {
+                'glow-red': '0 0 15px 0 rgba(220, 38, 38, 0.4)',
+                'glow-green': '0 0 15px 0 rgba(74, 222, 128, 0.5)',
+                'glow-yellow': '0 0 15px 0 rgba(250, 204, 21, 0.5)',
+                'glow-sky': '0 0 15px 0 rgba(56, 189, 248, 0.5)',
             }
           }
         }
       }
     </script>
+    <style>
+      body {
+        background: url(https://www.smartdatainc.com/wp-content/themes/smartdata-new/assets/img/banner_home_bg.svg) no-repeat center;
+        background-size: cover;
+        background-attachment: fixed;
+      }
+    </style>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+<link rel="stylesheet" href="/index.css">
   <script type="importmap">
 {
   "imports": {
@@ -49,13 +74,13 @@
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
     "jspdf": "https://aistudiocdn.com/jspdf@^3.0.3",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.21.0",
-    "@supabase/supabase-js": "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
+    "@supabase/supabase-js": "https://aistudiocdn.com/@supabase/supabase-js@^2.58.0"
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-CByUIJJ9.js"></script>
+  <script type="module" crossorigin src="/assets/index-DYEc7crN.js"></script>
 </head>
-  <body class="bg-slate-900 text-white">
+  <body class="text-slate-800">
     <div id="root"></div>
   </body>
 </html>

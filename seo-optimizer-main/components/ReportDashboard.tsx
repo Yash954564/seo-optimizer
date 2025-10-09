@@ -1,11 +1,10 @@
 import React from 'react';
 import { SeoReport } from '../types';
 import { SeoScoreCard } from './SeoScoreCard';
-import { KeywordRankingChart } from './KeywordRankingChart';
 import { KeywordDeepDive } from './CompetitorAnalysis';
 import { Recommendations } from './Recommendations';
 import { ContentSuggestions } from './ContentSuggestions';
-import { DownloadIcon } from './icons';
+// import { DownloadIcon } from './icons';
 import { KeywordGaps } from './KeywordGaps';
 import { AdvancedSuggestions } from './AdvancedSuggestions';
 import { KeywordSuggestions } from './KeywordSuggestions';
@@ -23,21 +22,32 @@ export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDown
 
   return (
     <div className="mt-8 animate-fade-in space-y-12">
-      <div className="flex justify-between items-center p-4 bg-white rounded-lg shadow-lg border border-slate-200">
-        <div>
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-white rounded-lg shadow-lg border border-slate-200">
+        <div className="flex-1">
           <h2 className="text-2xl font-bold text-text-primary">SEO <span className="text-brand-primary">Analysis Report</span></h2>
-          <a href={report.url} target="_blank" rel="noopener noreferrer" className="text-brand-secondary hover:underline">{report.url}</a>
-        </div>
-        {!isLocked && (
-            <button
-            onClick={onDownloadPdf}
-            disabled={isPdfMode}
-            className="flex items-center gap-2 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-4 rounded-md transition-all duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed"
-            >
-            <DownloadIcon className="w-5 h-5"/>
-            {isPdfMode ? 'Generating PDF...' : 'Download PDF'}
-            </button>
-        )}
+          <a href={report.url} target="_blank" rel="noopener noreferrer" className="text-brand-secondary hover:underline break-all">{report.url}</a>
+          {report.analyzedSubPages && report.analyzedSubPages.length > 0 && (
+            <div className="mt-2">
+                <h3 className="text-xs font-semibold text-text-secondary uppercase">Focused On Sub-pages:</h3>
+                <ul className="list-disc list-inside text-sm text-text-secondary">
+                    {report.analyzedSubPages.map((page, index) => (
+                        <li key={index} className="truncate">{page}</li>
+                    ))}
+                </ul>
+            </div>
+          )}
+        </div>{
+        // {!isLocked && (
+        //     <button
+        //     onClick={onDownloadPdf}
+        //     disabled={isPdfMode}
+        //     className="flex items-center gap-2 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-4 rounded-md transition-all duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed mt-4 sm:mt-0"
+        //     >
+        //     <DownloadIcon className="w-5 h-5"/>
+        //     {isPdfMode ? 'Generating PDF...' : 'Download PDF'}
+        //     </button>
+        // )}
+        }
       </div>
 
       {/* Scores Section */}
@@ -55,9 +65,6 @@ export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDown
 
         {/* Keyword Deep Dive & Competitor Analysis */}
         <KeywordDeepDive keywords={report.keywords} competitorInfo={report.competitorAnalysis} isReportLocked={isLocked} />
-
-        {/* Keyword Performance Charts */}
-        <KeywordRankingChart keywords={report.keywords} isReportLocked={isLocked} />
         
         {/* Content & Keyword Opportunities */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

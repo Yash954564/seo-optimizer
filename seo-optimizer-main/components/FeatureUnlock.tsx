@@ -5,7 +5,6 @@ import { CheckCircleIcon } from './icons';
 const features = [
   'Broken Links & 404 Errors',
   'Keyword & Competitor Deep Dive',
-  'Keyword Ranking History',
   'AI-Generated Content Briefs',
   'Keyword Gap Opportunities',
   'Strategic Keyword Suggestions',

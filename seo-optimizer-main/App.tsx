@@ -23,7 +23,7 @@ const App: React.FC = () => {
 
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const handleAnalysis = useCallback(async (mainUrl: string) => {
+  const handleAnalysis = useCallback(async (mainUrl: string, subPages: string[]) => {
     setIsAnalyzing(true);
     setError(null);
     setReport(null);
@@ -32,7 +32,7 @@ const App: React.FC = () => {
     setAnalyzedUrl(mainUrl);
 
     try {
-      const result = await analyzeWebsite(mainUrl);
+      const result = await analyzeWebsite(mainUrl, subPages);
       setReport(result);
     } catch (err) {
       console.error(err);
@@ -72,12 +72,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen text-text-primary font-sans" 
-    style={{
-    position: 'relative',
-    background: 'url(https://www.smartdatainc.com/wp-content/themes/smartdata-new/assets/img/banner_home_bg.svg) no-repeat center',
-    backgroundSize: 'cover'
-  }}>
+    <div className="min-h-screen text-text-primary font-sans">
         <Header />
         <main className="container mx-auto px-4 py-8">
           <UrlInputForm onAnalyze={handleAnalysis} isLoading={isAnalyzing} />
