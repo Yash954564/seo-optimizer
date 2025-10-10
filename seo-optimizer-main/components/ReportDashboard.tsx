@@ -4,7 +4,7 @@ import { SeoScoreCard } from './SeoScoreCard';
 import { KeywordDeepDive } from './CompetitorAnalysis';
 import { Recommendations } from './Recommendations';
 import { ContentSuggestions } from './ContentSuggestions';
-// import { DownloadIcon } from './icons';
+import { DownloadIcon } from './icons';
 import { KeywordGaps } from './KeywordGaps';
 import { AdvancedSuggestions } from './AdvancedSuggestions';
 import { KeywordSuggestions } from './KeywordSuggestions';
@@ -17,12 +17,19 @@ interface ReportDashboardProps {
   isReportLocked: boolean;
 }
 
+const childAnimation = (index: number): React.CSSProperties => ({
+    animation: `slideInUp 0.5s ease-in-out forwards`,
+    animationDelay: `${index * 150}ms`,
+    opacity: 0,
+});
+
+
 export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDownloadPdf, isPdfMode, isReportLocked }) => {
   const isLocked = isReportLocked && !isPdfMode;
 
   return (
-    <div className="mt-8 animate-fade-in space-y-12">
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-white rounded-lg shadow-lg border border-slate-200">
+    <div className="mt-8 space-y-12">
+      <div style={childAnimation(0)} className="flex flex-col sm:flex-row justify-between sm:items-center p-4 bg-white rounded-lg shadow-lg border border-slate-200">
         <div className="flex-1">
           <h2 className="text-2xl font-bold text-text-primary">SEO <span className="text-brand-primary">Analysis Report</span></h2>
           <a href={report.url} target="_blank" rel="noopener noreferrer" className="text-brand-secondary hover:underline break-all">{report.url}</a>
@@ -36,22 +43,21 @@ export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDown
                 </ul>
             </div>
           )}
-        </div>{
-        // {!isLocked && (
-        //     <button
-        //     onClick={onDownloadPdf}
-        //     disabled={isPdfMode}
-        //     className="flex items-center gap-2 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-4 rounded-md transition-all duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed mt-4 sm:mt-0"
-        //     >
-        //     <DownloadIcon className="w-5 h-5"/>
-        //     {isPdfMode ? 'Generating PDF...' : 'Download PDF'}
-        //     </button>
-        // )}
-        }
+        </div>
+        {!isLocked && (
+            <button
+            onClick={onDownloadPdf}
+            disabled={isPdfMode}
+            className="flex items-center gap-2 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-4 rounded-md transition-all duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed mt-4 sm:mt-0"
+            >
+            <DownloadIcon className="w-5 h-5"/>
+            {isPdfMode ? 'Generating PDF...' : 'Download PDF'}
+            </button>
+        )}
       </div>
 
       {/* Scores Section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div style={childAnimation(1)} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <SeoScoreCard title="On-Page SEO" scoreData={report.scores.onPageSeo} />
         <SeoScoreCard title="Content Quality" scoreData={report.scores.contentQuality} />
         <SeoScoreCard title="Readability" scoreData={report.scores.readability} />
@@ -59,7 +65,7 @@ export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDown
       </div>
       
       {/* Main Content with partial blur */}
-      <div className="space-y-12">
+      <div style={childAnimation(2)} className="space-y-12">
         {/* Technical Audit Section */}
         <TechnicalAuditReport audit={report.technicalAudit} isReportLocked={isLocked} />
 

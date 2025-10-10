@@ -76,7 +76,7 @@ const App: React.FC = () => {
         <Header />
         <main className="container mx-auto px-4 py-8">
           <UrlInputForm onAnalyze={handleAnalysis} isLoading={isAnalyzing} />
-          {isAnalyzing && <LoadingSpinner message="AI is analyzing your website..." />}
+          {isAnalyzing && <LoadingSpinner />}
           {error && (
             <div className="mt-8 text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg animate-fade-in" role="alert">
               <p className="font-bold">An Error Occurred</p>

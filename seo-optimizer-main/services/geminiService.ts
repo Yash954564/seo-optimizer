@@ -261,31 +261,43 @@ const generatePrompt = (mainUrl: string, subPages: string[]): string => {
 
 export const analyzeWebsite = async (mainUrl: string, subPages: string[]): Promise<SeoReport> => {
     const prompt = generatePrompt(mainUrl, subPages);
-    
-    try {
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
-            contents: prompt,
-            config: {
-                responseMimeType: "application/json",
-                responseSchema: seoReportSchema,
+    const modelsToTry = ['gemini-2.5-pro', 'gemini-2.5-flash'];
+    let lastError: any = null;
+
+    for (const modelName of modelsToTry) {
+        try {
+            console.log(`Attempting analysis with model: ${modelName}`);
+            const response = await ai.models.generateContent({
+                model: modelName,
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: seoReportSchema,
+                }
+            });
+
+            const reportJson = response.text.trim();
+            const report: SeoReport = JSON.parse(reportJson);
+
+            if (!report.url) {
+                report.url = mainUrl;
             }
-        });
+            
+            if (subPages.length > 0) {
+                report.analyzedSubPages = subPages;
+            }
 
-        const reportJson = response.text.trim();
-        const report: SeoReport = JSON.parse(reportJson);
+            console.log(`Successfully generated report with model: ${modelName}`);
+            return report; // Success, exit the loop and return the report
 
-        if (!report.url) {
-            report.url = mainUrl;
+        } catch (error) {
+            console.warn(`Analysis with model ${modelName} failed. Retrying with next model...`, error);
+            lastError = error;
+            // The loop will continue to the next model if there is one.
         }
-        
-        if (subPages.length > 0) {
-            report.analyzedSubPages = subPages;
-        }
-
-        return report;
-    } catch (error) {
-        console.error("Error analyzing website with Gemini API:", error);
-        throw new Error("Failed to get a valid response from the AI model.");
     }
+    
+    // If the loop completes without returning, it means all models failed.
+    console.error("All models failed to generate a response.", lastError);
+    throw new Error("Failed to get a valid response from the AI model after trying all available options.");
 };
