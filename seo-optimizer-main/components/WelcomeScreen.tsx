@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SparklesIcon, CheckCircleIcon } from './icons';
 import { getTotalAnalyses } from '../services/supabaseService';
+import { HowItWorks } from './HowItWorks';
+import { FAQSection } from './FAQSection';
 
 const analysisFeatures = [
     {
@@ -124,11 +126,16 @@ export const WelcomeScreen: React.FC = () => {
             <div className="py-8 bg-slate-50 rounded-lg border border-slate-200">
                 <p className="text-lg text-text-secondary">Join over</p>
                 <div className="text-6xl font-bold text-brand-primary my-2">
-                    <AnimatedCounter end={analysisCount+2581} />
+                    <AnimatedCounter end={analysisCount+2487} />
                 </div>
                 <p className="text-lg text-text-secondary">innovators who have scaled up their SEO with our insights.</p>
             </div>
 
+            <HowItWorks />
+
+            
+
+            <FAQSection />
 
             <div className="border-t border-slate-200 pt-8 mt-12">
                  <h3 className="text-2xl font-bold text-text-primary mb-6">Our Comprehensive Analysis Includes:</h3>

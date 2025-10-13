@@ -3,7 +3,7 @@ import { CheckCircleIcon } from './icons';
 
 const analysisStepsList = [
   "Booting up AI analyst...",
-  "Performing website crawl...",
+  "Simulating website crawl...",
   "Analyzing on-page SEO factors...",
   "Evaluating content quality & readability...",
   "Auditing technical SEO health...",

@@ -10,6 +10,7 @@ import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { EmailModal } from './components/EmailModal';
 import { UnlockButton } from './components/UnlockButton';
+import { Chatbot } from './components/Chatbot';
 
 
 const App: React.FC = () => {
@@ -103,6 +104,10 @@ const App: React.FC = () => {
                   onSubmit={handleUnlockSuccess}
                   url={analyzedUrl}
               />
+          )}
+
+          {report && !isReportLocked && (
+            <Chatbot report={report} />
           )}
         </main>
     </div>

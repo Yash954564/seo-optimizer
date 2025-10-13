@@ -4,8 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Best SEO Checker | Google SEO & Performance Analyzer</title>
-    <meta name="description" content="Check your website’s SEO health, speed, and performance with our free SEO analyzer. Get instant reports and improve Google rankings easily." />
+    <title>SEO & Performance Analyzer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -23,7 +22,6 @@
               'slide-in-up': 'slideInUp 0.5s ease-in-out forwards',
               'staggered-slide-in': 'staggeredSlideIn 0.5s ease-in-out forwards',
               'pulse-subtle': 'pulseSubtle 2s infinite cubic-bezier(0.4, 0, 0.6, 1)',
-              'slide-down-fade-in': 'slideDownFadeIn 0.5s ease-out forwards',
             },
             keyframes: {
               fadeIn: {
@@ -32,10 +30,6 @@
               },
               slideInUp: {
                 '0%': { transform: 'translateY(20px)', opacity: 0 },
-                '100%': { transform: 'translateY(0)', opacity: 1 },
-              },
-              slideDownFadeIn: {
-                '0%': { transform: 'translateY(-100%)', opacity: 0 },
                 '100%': { transform: 'translateY(0)', opacity: 1 },
               },
               staggeredSlideIn: {
@@ -57,27 +51,10 @@
         }
       }
     </script>
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Best SEO Checker | Google SEO & Performance Analyzer",
-      "description": "Check your website’s SEO health, speed, and performance with our free SEO analyzer. Get instant reports and improve Google rankings easily.",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0"
-      }
-    }
-    </script>
     <style>
       body {
-        background-color: #f8f9fa; /* brand-bg */
-        background-image:
-          linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-        background-size: 20px 20px;
+        background: url(https://www.smartdatainc.com/wp-content/themes/smartdata-new/assets/img/banner_home_bg.svg) no-repeat center;
+        background-size: cover;
         background-attachment: fixed;
       }
     </style>
@@ -86,6 +63,8 @@
     <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<link rel="stylesheet" href="/index.css">
   <script type="importmap">
 {
   "imports": {
@@ -99,10 +78,9 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <script type="module" crossorigin src="/assets/index-BV5PIMTX.js"></script>
 </head>
   <body class="text-slate-800">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
   </body>
 </html>

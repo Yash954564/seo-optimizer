@@ -44,16 +44,7 @@ export const ReportDashboard: React.FC<ReportDashboardProps> = ({ report, onDown
             </div>
           )}
         </div>
-        {!isLocked && (
-            <button
-            onClick={onDownloadPdf}
-            disabled={isPdfMode}
-            className="flex items-center gap-2 bg-brand-primary hover:bg-brand-secondary text-white font-bold py-2 px-4 rounded-md transition-all duration-300 disabled:bg-slate-400 disabled:cursor-not-allowed mt-4 sm:mt-0"
-            >
-            <DownloadIcon className="w-5 h-5"/>
-            {isPdfMode ? 'Generating PDF...' : 'Download PDF'}
-            </button>
-        )}
+        
       </div>
 
       {/* Scores Section */}
