@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { SparklesIcon, CheckCircleIcon } from './icons';
+import { SparklesIcon, CheckCircleIcon, ChartTrendingUpIcon } from './icons';
 import { getTotalAnalyses } from '../services/supabaseService';
 import { HowItWorks } from './HowItWorks';
 import { FAQSection } from './FAQSection';
@@ -114,43 +114,68 @@ export const WelcomeScreen: React.FC = () => {
     }, []);
 
     return (
-        <div className="text-center p-8 mt-8 bg-white border border-slate-200 rounded-xl animate-fade-in shadow-lg">
-            <SparklesIcon className="w-12 h-12 mx-auto text-brand-primary mb-4" />
-            <h2 className="text-4xl font-bold text-text-primary mb-3">
-                Trusted By <span className="text-brand-primary">Innovators</span> Worldwide.
-            </h2>
-            <p className="text-text-secondary max-w-3xl mx-auto mb-10">
-                From startups to global enterprises, we provide AI-driven insights that deliver measurable impact. Analyze your website to uncover data-driven strategies for growth and outperform your competition. Our 360° analysis covers every critical aspect of your online presence.
-            </p>
-
-            <div className="py-8 bg-slate-50 rounded-lg border border-slate-200">
-                <p className="text-lg text-text-secondary">Join over</p>
-                <div className="text-6xl font-bold text-brand-primary my-2">
-                    <AnimatedCounter end={analysisCount+2487} />
+        <div className="mt-8 space-y-20 md:space-y-32 animate-fade-in">
+            {/* Hero Section */}
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+                <div className="text-left animate-slide-in-up">
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-text-primary mb-6">
+                        Unlock Your Website's <span className="text-brand-primary">True Potential</span>
+                    </h2>
+                    <p className="text-lg text-text-secondary max-w-xl mb-8">
+                        Stop guessing and start growing. Our AI-powered analyzer performs a comprehensive 360° audit of your website, delivering actionable insights to dominate search rankings and outperform your competition.
+                    </p>
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-3">
+                            <CheckCircleIcon className="w-6 h-6 text-green-500" />
+                            <span className="text-text-primary">In-depth Technical & Content Analysis</span>
+                        </div>
+                         <div className="flex items-center gap-3">
+                            <CheckCircleIcon className="w-6 h-6 text-green-500" />
+                            <span className="text-text-primary">Live Competitor Strategy Breakdowns</span>
+                        </div>
+                         <div className="flex items-center gap-3">
+                            <CheckCircleIcon className="w-6 h-6 text-green-500" />
+                            <span className="text-text-primary">AI-Generated Actionable Recommendations</span>
+                        </div>
+                    </div>
                 </div>
-                <p className="text-lg text-text-secondary">innovators who have scaled up their SEO with our insights.</p>
+                <div className="relative flex justify-center items-center animate-fade-in" style={{ animationDelay: '300ms' }}>
+                    <div className="absolute w-72 h-72 bg-gradient-to-br from-red-100 to-red-200 rounded-full blur-2xl opacity-50"></div>
+                     <div className="relative bg-white/50 backdrop-blur-sm p-8 rounded-full border border-slate-200 shadow-xl text-center">
+                        <ChartTrendingUpIcon className="w-24 h-24 mx-auto text-brand-primary mb-4"/>
+                        <p className="text-lg text-text-secondary">Analyses Performed</p>
+                        <div className="text-5xl font-bold text-brand-primary my-1">
+                            <AnimatedCounter end={analysisCount+2487} />+
+                        </div>
+                        <p className="text-sm text-text-secondary">and growing!</p>
+                    </div>
+                </div>
             </div>
 
             <HowItWorks />
 
-            
-
-            <FAQSection />
-
-            <div className="border-t border-slate-200 pt-8 mt-12">
-                 <h3 className="text-2xl font-bold text-text-primary mb-6">Our Comprehensive Analysis Includes:</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6 text-left max-w-6xl mx-auto">
+            {/* Features Section */}
+            <div id="features" className="text-center">
+                 <h3 className="text-3xl font-bold text-text-primary mb-4">A Complete SEO Toolkit at Your Fingertips</h3>
+                 <p className="text-lg text-text-secondary max-w-3xl mx-auto mb-12">
+                     Our analysis covers every critical aspect of your online presence. No stone is left unturned.
+                 </p>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-left">
                     {analysisFeatures.map((feature, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                            <CheckCircleIcon className="w-5 h-5 text-green-500 flex-shrink-0 mt-1" />
-                            <div>
-                                <h4 className="font-semibold text-text-primary">{feature.title}</h4>
-                                <p className="text-text-secondary text-sm mt-1">{feature.description}</p>
-                            </div>
+                        <div 
+                            key={index} 
+                            className="bg-white p-6 rounded-xl border border-slate-200 shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 animate-slide-in-up"
+                            style={{ animationDelay: `${index * 50}ms`, opacity: 0, animationFillMode: 'forwards' }}
+                        >
+                            <SparklesIcon className="w-8 h-8 text-brand-primary mb-4" />
+                            <h4 className="font-bold text-lg text-text-primary mb-2">{feature.title}</h4>
+                            <p className="text-text-secondary text-sm">{feature.description}</p>
                         </div>
                     ))}
                 </div>
             </div>
+
+            <FAQSection />
         </div>
     );
 }
