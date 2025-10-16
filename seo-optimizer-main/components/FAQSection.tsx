@@ -3,20 +3,44 @@ import { ChevronDownIcon } from './icons';
 
 const faqData = [
     {
-        question: "How does this tool analyze my website?",
-        answer: "Our tool uses an advanced AI model from Google (Gemini) that acts like an expert SEO analyst. It simulates a live crawl of your website to gather real-time data on technical factors, content quality, and on-page elements, compiling it into a comprehensive report."
+        question: "What is an SEO analyzer free tool?",
+        answer: "An SEO analyzer free tool evaluates your website’s SEO performance, page speed, and optimization issues. It provides actionable insights, helping you improve rankings and overall website health without any cost or signup."
     },
     {
-        question: "Is the data in the report accurate?",
-        answer: "Yes, the analysis is based on a real-time inspection of your website's live content and structure. The AI identifies your keywords, checks for technical files like robots.txt, and evaluates your content based on SEO best practices. It does not use outdated or cached data."
+        question: "How does the Performance Analyzer work?",
+        answer: "The Performance Analyzer checks your website’s speed, responsiveness, and technical SEO elements. It identifies performance bottlenecks and provides actionable recommendations to optimize your site, enhance user experience, and boost search engine rankings."
     },
     {
-        question: "How is this different from other SEO tools?",
-        answer: "Many tools focus on one aspect of SEO or use data that can be slow to update. Our analyzer provides a holistic, 360-degree view by combining technical, on-page, and content analysis. The AI also provides strategic recommendations and content briefs, which is a unique feature."
+        question: "Can I use this as a website health checker?",
+        answer: "Yes! Our tool doubles as a website health checker, analyzing SEO errors, performance issues, and site optimization. You receive a clear SEO audit with actionable insights to improve your site’s health and overall search visibility."
     },
     {
-        question: "Is my data safe?",
-        answer: "Absolutely. We only require your URL for analysis and do not access any private backend data. If you choose to unlock the full report, your email is stored securely and is only used to associate you with the report for this specific analysis."
+        question: "Is this a reliable Google SEO checker?",
+        answer: "Absolutely. This Google SEO checker evaluates on-page SEO, site speed, and other ranking factors. It offers an easy-to-understand SEO audit report and actionable recommendations to enhance Google search performance efficiently."
+    },
+    {
+        question: "Can I get a website analyzer free report?",
+        answer: "Yes, our website analyzer free feature generates a detailed SEO audit report instantly. It highlights optimization issues, performance metrics, and actionable insights to help you boost your website’s ranking and overall user experience."
+    },
+    {
+        question: "Does it include an SEO report generator?",
+        answer: "Yes, the SEO report generator creates comprehensive reports including SEO scores, performance analysis, and actionable recommendations. You can download a free SEO audit report PDF for review, sharing, or strategy planning."
+    },
+    {
+        question: "Is this the best SEO checker online?",
+        answer: "Our tool is one of the best SEO checker online options, offering quick, accurate audits. It combines website analysis, actionable insights, and performance optimization in a single, free, and user-friendly platform."
+    },
+    {
+        question: "Can I use this as an SEO optimizer?",
+        answer: "Yes, the tool functions as an SEO optimizer by providing actionable insights and practical recommendations. It helps improve website speed, on-page SEO, and overall site performance to increase search engine rankings."
+    },
+    {
+        question: "What actionable recommendations will I get?",
+        answer: "You’ll receive actionable recommendations to fix SEO issues, improve website performance, optimize meta tags, enhance page speed, and boost rankings. Each suggestion is clear, practical, and focused on measurable SEO improvements."
+    },
+    {
+        question: "Is this a complete SEO audit tool?",
+        answer: "Yes, this SEO audit tool performs a full website analysis, checks performance, identifies errors, and generates actionable insights. It’s free, fast, and designed to help marketers, developers, and website owners optimize their sites effectively."
     }
 ];
 
