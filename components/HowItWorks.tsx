@@ -11,7 +11,7 @@ export const HowItWorks: React.FC = () => {
         {
             icon: <SparklesIcon className="w-8 h-8 text-brand-primary" />,
             title: "2. AI Performs Deep Analysis",
-            description: "Our AI a live crawl, checks technical factors, evaluates content, and analyzes competitors in real-time."
+            description: "Our AI simulates a live crawl, checks technical factors, evaluates content, and analyzes competitors in real-time."
         },
         {
             icon: <AnalyticsIcon className="w-8 h-8 text-brand-primary" />,

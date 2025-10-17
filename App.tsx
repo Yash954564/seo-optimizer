@@ -4,7 +4,7 @@ import { UrlInputForm } from './components/UrlInputForm';
 import { ReportDashboard } from './components/ReportDashboard';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { WelcomeScreen } from './components/WelcomeScreen';
-import { SeoReport } from './types';
+import { SeoReport, ContactDetails } from './types';
 import { analyzeWebsite } from './services/geminiService';
 import { getReportByUrlId } from './services/supabaseService';
 import { jsPDF } from 'jspdf';
@@ -12,6 +12,9 @@ import html2canvas from 'html2canvas';
 import { EmailModal } from './components/EmailModal';
 import { UnlockButton } from './components/UnlockButton';
 import { Chatbot } from './components/Chatbot';
+import { CopyProtectionModal } from './components/CopyProtectionModal';
+import { ChatAccessModal } from './components/ChatAccessModal';
+import { ContactModal } from './components/ContactModal';
 
 
 const App: React.FC = () => {
@@ -24,8 +27,16 @@ const App: React.FC = () => {
   const [isReportLocked, setIsReportLocked] = useState(true);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [showCopyModal, setShowCopyModal] = useState(false);
+  const [showChatAccessModal, setShowChatAccessModal] = useState(false);
+  const [showContactModal, setShowContactModal] = useState(false);
+  const [contactModalTrigger, setContactModalTrigger] = useState<'copy' | 'chat' | null>(null);
 
   const reportRef = useRef<HTMLDivElement>(null);
+  
+  // Feature access is now derived directly from whether contact info exists on the report
+  const isCopyAllowed = !!report?.contact;
+  const isChatAllowed = !!report?.contact;
 
   useEffect(() => {
     // Check for a shared report ID in the URL on initial load
@@ -54,6 +65,22 @@ const App: React.FC = () => {
     };
     loadSharedReport();
   }, []);
+
+  useEffect(() => {
+    const handleCopy = (event: ClipboardEvent) => {
+        // Only apply copy protection if a report is being viewed and features aren't unlocked
+        if (report && !isCopyAllowed) {
+            event.preventDefault();
+            setShowCopyModal(true);
+        }
+    };
+
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+        document.removeEventListener('copy', handleCopy);
+    };
+  }, [report, isCopyAllowed]);
 
   const handleAnalysis = useCallback(async (mainUrl: string, subPages: string[]) => {
     setIsAnalyzing(true);
@@ -111,6 +138,41 @@ const App: React.FC = () => {
     }, 3000);
   };
 
+  const handleAllowCopy = () => {
+      setShowCopyModal(false);
+      setContactModalTrigger('copy');
+      setShowContactModal(true);
+  };
+
+  const handleCloseCopyModal = () => {
+    setShowCopyModal(false);
+  };
+
+  const handleAllowChat = () => {
+      setShowChatAccessModal(false);
+      setContactModalTrigger('chat');
+      setShowContactModal(true);
+  };
+
+  const handleCloseChatAccessModal = () => {
+    setShowChatAccessModal(false);
+  };
+
+  const handleContactSubmitSuccess = (contactDetails: ContactDetails) => {
+      setShowContactModal(false);
+      setReport(prevReport => {
+          if (!prevReport) return null;
+          return { ...prevReport, contact: contactDetails };
+      });
+      showNotification('Thank you! An expert will be in touch and features are unlocked.');
+      setContactModalTrigger(null);
+  };
+
+  const handleContactModalClose = () => {
+      setShowContactModal(false);
+      setContactModalTrigger(null);
+  };
+
   const renderContent = () => {
     if (isLoadingShared) return null; // Wait until URL check is complete
     if (isAnalyzing) return <LoadingSpinner message={new URLSearchParams(window.location.search).get('urlid') ? 'Loading shared report...' : undefined} />;
@@ -148,7 +210,11 @@ const App: React.FC = () => {
                     />
                 )}
                 {!isReportLocked && (
-                  <Chatbot report={report} />
+                  <Chatbot 
+                    report={report} 
+                    isChatAllowed={isChatAllowed}
+                    onRequestAccess={() => setShowChatAccessModal(true)}
+                  />
                 )}
             </>
         );
@@ -168,6 +234,27 @@ const App: React.FC = () => {
             <div className="fixed top-20 right-4 z-50 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg animate-slide-down-fade-in">
                 {notification}
             </div>
+        )}
+        {showCopyModal && (
+            <CopyProtectionModal
+                onAllow={handleAllowCopy}
+                onCheck={handleCloseCopyModal}
+                onCancel={handleCloseCopyModal}
+            />
+        )}
+        {showChatAccessModal && (
+            <ChatAccessModal
+                onAllow={handleAllowChat}
+                onCheck={handleCloseChatAccessModal}
+                onCancel={handleCloseChatAccessModal}
+            />
+        )}
+        {showContactModal && reportUrlId && (
+            <ContactModal
+                onClose={handleContactModalClose}
+                onSubmitSuccess={handleContactSubmitSuccess}
+                reportUrlId={reportUrlId}
+            />
         )}
     </div>
   );

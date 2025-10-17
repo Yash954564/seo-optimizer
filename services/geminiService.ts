@@ -293,3 +293,62 @@ export const analyzeWebsite = async (mainUrl: string, subPages: string[]): Promi
         throw new Error("Failed to get a valid response from the AI model.");
     }
 };
+
+export const generateChatSuggestions = async (report: SeoReport): Promise<string[]> => {
+    const modelName = 'gemini-2.5-flash';
+    const prompt = `Based on the following SEO report for ${report.url}, generate exactly 4 short, insightful, and actionable follow-up questions a user might ask an SEO expert chatbot. The questions should be phrased from the user's perspective.
+    
+    Guidelines:
+    - Keep questions concise (under 15 words).
+    - Make them directly relevant to the data in the report.
+    - Focus on high-impact areas like keywords, competitors, or top recommendations.
+    
+    Return the output as a JSON object with a single key "suggestions" which is an array of strings.
+
+    Example format: {"suggestions": ["How do I fix my broken links?", "Give me a content idea for 'keyword-x'", "Analyze my main competitor's homepage.", "What's the #1 priority from my report?"]}
+
+    SEO Report Context:
+    ${JSON.stringify({ 
+        scores: report.scores, 
+        recommendations: report.recommendations.slice(0, 2), 
+        keywords: report.keywords.map(k => k.keyword).slice(0, 3),
+        competitorAnalysis: report.competitorAnalysis.map(c => c.url).slice(0,2) 
+    })}
+    `;
+
+    try {
+        const response = await ai.models.generateContent({
+            model: modelName,
+            contents: prompt,
+            config: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: Type.OBJECT,
+                    properties: {
+                        suggestions: {
+                            type: Type.ARRAY,
+                            items: { type: Type.STRING }
+                        }
+                    },
+                    required: ['suggestions']
+                },
+            }
+        });
+        
+        const responseJson = response.text.trim();
+        const parsed = JSON.parse(responseJson);
+        if (parsed.suggestions && Array.isArray(parsed.suggestions)) {
+            return parsed.suggestions;
+        }
+        return [];
+    } catch (error) {
+        console.error("Failed to generate chat suggestions:", error);
+        // Return a default set of suggestions on error
+        return [
+            "What's the #1 priority from my report?",
+            "Analyze on-page SEO for a competitor's URL",
+            "What are the latest SEO trends?",
+            "Suggest keywords for a blog post about 'AI marketing'",
+        ];
+    }
+};

@@ -1,3 +1,10 @@
+export interface ContactDetails {
+    name: string;
+    phone: string;
+    email: string;
+    description: string;
+}
+
 export interface ScoreDetail {
   score: number;
   breakdown: string[];
@@ -107,4 +114,5 @@ export interface SeoReport {
   keywordGaps: string[];
   keywordSuggestions: KeywordSuggestion[];
   advancedSuggestions: AdvancedSuggestion[];
+  contact?: ContactDetails;
 }
