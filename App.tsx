@@ -6,7 +6,7 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { SeoReport, ContactDetails } from './types';
 import { analyzeWebsite } from './services/geminiService';
-import { getReportByUrlId } from './services/supabaseService';
+import { getReportByUrlId, getIpAddress, getAnalysisCountForIp, getReportByUrl, logAnalysisStart } from './services/supabaseService';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { EmailModal } from './components/EmailModal';
@@ -31,6 +31,8 @@ const App: React.FC = () => {
   const [showChatAccessModal, setShowChatAccessModal] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [contactModalTrigger, setContactModalTrigger] = useState<'copy' | 'chat' | null>(null);
+  const [userIp, setUserIp] = useState<string | null>(null);
+
 
   const reportRef = useRef<HTMLDivElement>(null);
   
@@ -39,6 +41,12 @@ const App: React.FC = () => {
   const isChatAllowed = !!report?.contact;
 
   useEffect(() => {
+    const fetchIp = async () => {
+        const ip = await getIpAddress();
+        setUserIp(ip);
+    };
+    fetchIp();
+
     // Check for a shared report ID in the URL on initial load
     const loadSharedReport = async () => {
         const params = new URLSearchParams(window.location.search);
@@ -82,24 +90,80 @@ const App: React.FC = () => {
     };
   }, [report, isCopyAllowed]);
 
+  const showNotification = (message: string) => {
+    setNotification(message);
+    setTimeout(() => {
+        setNotification(null);
+    }, 3000);
+  };
+
   const handleAnalysis = useCallback(async (mainUrl: string, subPages: string[]) => {
-    setIsAnalyzing(true);
     setError(null);
     setReport(null);
     setReportUrlId(null);
     setIsReportLocked(true);
     setShowEmailModal(false);
+    setIsAnalyzing(true);
 
+    // 0. Log the analysis request immediately to get a persistent ID
+    let newUrlId: string | null = null;
+    if (userIp) {
+        try {
+            newUrlId = await logAnalysisStart(mainUrl, userIp);
+            setReportUrlId(newUrlId);
+        } catch (err) {
+            console.error("Failed to log analysis request:", err);
+            setError("Failed to initiate analysis session. Please try again.");
+            setIsAnalyzing(false);
+            return;
+        }
+    } else {
+        console.warn("Could not get user IP. Cannot log analysis request.");
+        // We can proceed, but saving the report will fail later.
+        // The UI should ideally handle this, but for now we warn.
+    }
+
+    // 1. Rate Limiting Check
+    if (userIp) {
+        const analysisCount = await getAnalysisCountForIp(userIp);
+        if (analysisCount >= 3) {
+            showNotification("Limit reached — maximum of 3 analyses allowed.");
+            setIsAnalyzing(false);
+            return;
+        }
+    } else {
+        console.warn("Could not get user IP. Rate limiting is disabled for this session.");
+    }
+
+    // 2. Caching Check
+    try {
+        const existingReport = await getReportByUrl(mainUrl);
+        if (existingReport) {
+            showNotification("Loading existing report for this URL.");
+            setReport(existingReport);
+            setReportUrlId(existingReport.urlid);
+            setIsReportLocked(false); // Cached reports are already unlocked
+            setIsAnalyzing(false);
+            return;
+        }
+    } catch (err) {
+        console.error("Error checking for existing report:", err);
+        // If the check fails, proceed with a new analysis.
+    }
+
+    // 3. New Analysis
     try {
       const result = await analyzeWebsite(mainUrl, subPages);
-      setReport(result);
+      // Attach the persistent urlid generated earlier to the report object
+      const finalReport = { ...result, urlid: newUrlId ?? undefined };
+      setReport(finalReport);
     } catch (err) {
       console.error(err);
       setError('Failed to generate SEO report. The AI model may be overloaded or returned an invalid response. Please try again in a moment.');
     } finally {
       setIsAnalyzing(false);
     }
-  }, []);
+  }, [userIp]);
 
   const handleDownloadPdf = useCallback(() => {
     if (reportRef.current) {
@@ -129,13 +193,6 @@ const App: React.FC = () => {
     setReportUrlId(newReportUrlId);
     setIsReportLocked(false);
     setShowEmailModal(false);
-  };
-
-  const showNotification = (message: string) => {
-    setNotification(message);
-    setTimeout(() => {
-        setNotification(null);
-    }, 3000);
   };
 
   const handleAllowCopy = () => {
@@ -202,7 +259,7 @@ const App: React.FC = () => {
                 {isReportLocked && !isGeneratingPdf && (
                     <UnlockButton onClick={() => setShowEmailModal(true)} />
                 )}
-                {showEmailModal && (
+                {showEmailModal && report && (
                     <EmailModal 
                         report={report}
                         onClose={() => setShowEmailModal(false)}

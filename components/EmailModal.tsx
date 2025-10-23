@@ -1,6 +1,6 @@
 import React, { useState, FormEvent } from 'react';
 import { MailIcon } from './icons';
-import { saveReport } from '../services/supabaseService';
+import { saveAnalysisResults } from '../services/supabaseService';
 import { SeoReport } from '../types';
 
 
@@ -23,12 +23,18 @@ export const EmailModal: React.FC<EmailModalProps> = ({ onClose, onSaveSuccess, 
             setError('Please enter a valid email address.');
             return;
         }
+        
+        if (!report.urlid) {
+            setError("Could not verify your session. Please refresh and try again.");
+            setIsSubmitting(false);
+            return;
+        }
 
         setIsSubmitting(true);
         try {
-            const newReportUrlId = await saveReport(report, email);
-            console.log('Report successfully saved with urlid:', newReportUrlId);
-            onSaveSuccess(newReportUrlId);
+            const updatedReportUrlId = await saveAnalysisResults(report, email);
+            console.log('Report successfully saved with urlid:', updatedReportUrlId);
+            onSaveSuccess(updatedReportUrlId);
         } catch (err: any) {
             console.error('Error saving report:', err);
             setError('Failed to save report. Please try again.');
